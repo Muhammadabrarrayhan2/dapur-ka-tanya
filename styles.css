@@ -229,6 +229,16 @@ h3 { font-weight: 800; font-size: 1.2rem; }
 .mambo-card h3 { font-family: var(--display); font-weight: 400; font-size: 2.4rem; }
 .mambo-card .real { font-weight: 800; opacity: .85; text-transform: uppercase; letter-spacing: .1em; font-size: .78rem; }
 .mambo-card p { margin: 10px 0 0; opacity: .9; }
+.mambo-buy { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 14px; border-top: 1.5px dashed rgba(255,255,255,.35); }
+.mambo-buy b { font-family: var(--display); font-weight: 400; font-size: 1.6rem; }
+.mambo-buy .btn { padding: 10px 18px; box-shadow: 0 6px 0 -2px #c9a600; }
+.mambo-add { display: grid; gap: 8px; }
+.ma-row { display: flex; align-items: center; gap: 10px; border: 2px solid var(--line); border-radius: 16px; padding: 6px 8px 6px 14px; transition: all .2s; }
+.ma-row.on { border-color: var(--red); background: #fff0ee; }
+.ma-row .sw { width: 16px; height: 16px; border-radius: 50%; flex: none; }
+.ma-name { flex: 1; }
+.ma-name small { color: var(--muted); font-weight: 600; }
+.upsell-btns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 .mambo-card::after { content: ""; position: absolute; width: 240px; height: 240px; border-radius: 50%; background: rgba(255,255,255,.12); left: -80px; top: -80px; }
 
 /* HOW */
@@ -366,7 +376,7 @@ h3 { font-weight: 800; font-size: 1.2rem; }
 .sum-row.total { color: var(--ink); font-weight: 800; font-size: 1.15rem; }
 .sum-row.total b { color: var(--red); font-family: var(--display); font-weight: 400; font-size: 1.6rem; }
 .sum-row.disc { color: #15803d; }
-.upsell { background: #fff8d6; border: 2px dashed #f0d266; border-radius: 16px; padding: 12px 14px; font-weight: 700; font-size: .9rem; display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+.upsell { background: #fff8d6; border: 2px dashed #f0d266; border-radius: 16px; padding: 12px 14px; font-weight: 700; font-size: .9rem; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
 .upsell button { border: 0; background: var(--ink); color: #fff; border-radius: 99px; padding: 8px 12px; font-weight: 800; font-size: .8rem; white-space: nowrap; }
 
 /* CHECKOUT */

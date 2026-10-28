@@ -11,7 +11,12 @@ const CONFIG = {
   firstOrderDiscount: 2000,
   // Taruh gambar QRIS di assets/qris.png. Kalau file belum ada, bagian gambar disembunyikan.
   qrisImage: "/assets/qris.png",
+  qrisMerchant: "dapurkatanya",
+  qrisNmid: "ID1026627034964",
   stampsForReward: 5,
+  // Es Mambo dijual terpisah: 1 pcs Rp3.000, 2 pcs Rp5.000 (boleh campur varian)
+  mamboPrice: 3000,
+  mamboPairPrice: 5000,
 };
 
 const MENU = [
@@ -22,7 +27,7 @@ const MENU = [
     tag: "Best Seller",
     tagClass: "red",
     desc: "Dimsum kukus dalam bowl, disiram kuah keju gurih yang creamy. Tambah chili oil sesuai nyalimu.",
-    perks: ["🧊 + Es Mambo", "🌶️ Level bebas"],
+    perks: ["🔥 Paling laris", "🌶️ Level bebas"],
     img: "", // isi path foto asli, mis. "/assets/dimsum.jpg", kalau sudah ada
   },
   {
@@ -32,7 +37,7 @@ const MENU = [
     tag: "Ramah Kantong",
     tagClass: "alt",
     desc: "5 pcs cireng renyah di luar, kenyal di dalam, nyemplung di kuah keju. Pas buat jajan ringan.",
-    perks: ["5 pcs", "🧊 + Es Mambo"],
+    perks: ["5 pcs", "🌶️ Level bebas"],
     img: "",
   },
   {
@@ -42,7 +47,7 @@ const MENU = [
     tag: "Combo Hemat",
     tagClass: "",
     desc: "2 dimsum keju + 3 cireng dalam satu bowl. Cobain dua-duanya sekaligus, biar kenyang, biar cepet lulus.",
-    perks: ["2 dimsum + 3 cireng", "🧊 + Es Mambo"],
+    perks: ["2 dimsum + 3 cireng", "🌶️ Level bebas"],
     img: "",
   },
 ];
@@ -82,7 +87,7 @@ const TEAM = [
 
 const FAQ = [
   ["Kapan dan di mana kalian jualan?", "Setiap Market Day hari Sabtu di lingkungan Telkom University Jakarta. Di luar itu kamu bisa pre-order lewat web ini, nanti admin konfirmasi titik temu dan jamnya lewat WhatsApp."],
-  ["Es Mambo-nya bayar lagi?", "Nggak. Setiap porsi sudah termasuk 1 Es Mambo, tinggal pilih Escopus, Esjosjis, atau Eskom."],
+  ["Es Mambo-nya berapa?", "Rp3.000 per pcs, atau Rp5.000 untuk 2 pcs (boleh campur varian Escopus, Esjosjis, dan Eskom). Potongan 2 pcs dihitung otomatis di keranjang."],
   ["Aku gak kuat pedas, bisa?", "Bisa banget. Pilih level \"Anti Pedas\" dan bowl-mu disajikan tanpa chili oil, full kuah keju."],
   ["Bayarnya pakai apa?", "QRIS (semua e-wallet & m-banking) atau tunai saat ambil pesanan."],
   ["Kartu stamp-nya gimana cara kerjanya?", "Setiap pesanan yang kamu kirim dari web ini menambah 1 stamp di perangkatmu. Setelah 5 stamp, pesanan berikutnya dapat Es Mambo gratis. Tunjukkan halaman ini ke kasir saat ambil."],
@@ -156,20 +161,30 @@ let orders = store.get("dkt_orders", []);
 let profile = store.get("dkt_profile", { name: "", wa: "", kelas: "" });
 
 const saveCart = () => { store.set("dkt_cart", cart); renderCartBadge(); };
-const subtotal = () => cart.reduce((s, l) => s + byId(MENU, l.menu).price * l.qty, 0);
+const isMambo = (l) => l.menu === "mambo";
+const unitPrice = (l) => (isMambo(l) ? CONFIG.mamboPrice : byId(MENU, l.menu).price);
+const itemName = (l) => (isMambo(l) ? `Es Mambo ${byId(MAMBO, l.mambo).name}` : byId(MENU, l.menu).name);
+const itemMedia = (l) => (isMambo(l) ? mamboSVG(byId(MAMBO, l.mambo)) : media(byId(MENU, l.menu)));
+const mamboTotal = (n) => Math.floor(n / 2) * CONFIG.mamboPairPrice + (n % 2) * CONFIG.mamboPrice;
+const mamboQty = () => cart.filter(isMambo).reduce((s, l) => s + l.qty, 0);
+const mamboSaving = () => mamboQty() * CONFIG.mamboPrice - mamboTotal(mamboQty());
+const gross = () => cart.reduce((s, l) => s + unitPrice(l) * l.qty, 0);
+const subtotal = () => gross() - mamboSaving();
 const count = () => cart.reduce((s, l) => s + l.qty, 0);
 const stampCount = () => orders.length % (CONFIG.stampsForReward + 1);
 const rewardReady = () => stampCount() === CONFIG.stampsForReward;
 const discount = () => (orders.length === 0 && cart.length ? CONFIG.firstOrderDiscount : 0);
 
-function addToCart({ menu, qty = 1, level = 1, mambo = MAMBO[0].id, note = "" }) {
-  const key = [menu, level, mambo, note.trim()].join("|");
+// Baris makanan: { menu, level, note }. Baris Es Mambo: { menu: "mambo", mambo }.
+function addToCart({ menu, qty = 1, level = 1, mambo = MAMBO[0].id, note = "" }, quiet = false) {
+  const line = menu === "mambo" ? { menu, mambo } : { menu, level, note: String(note).trim() };
+  const key = menu === "mambo" ? `mambo|${mambo}` : [menu, level, line.note].join("|");
   const found = cart.find((l) => l.key === key);
   if (found) found.qty += qty;
-  else cart.push({ key, menu, qty, level, mambo, note: note.trim() });
+  else cart.push({ key, qty, ...line });
   saveCart();
   const b = $("#cartCount"); b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump");
-  toast(`${byId(MENU, menu).name} masuk keranjang 🛒`);
+  if (!quiet) toast(`${itemName(line)} masuk keranjang 🛒`);
 }
 
 /* ========================= render: static sections ========================= */
@@ -196,6 +211,7 @@ function renderMambo() {
       <span class="real">${m.real}</span>
       <h3>${m.name}</h3>
       <p>${m.desc}</p>
+      <div class="mambo-buy"><b>${rp(CONFIG.mamboPrice)}</b><button class="btn btn-yellow" data-add-mambo="${m.id}">+ Tambah</button></div>
     </article>`).join("");
 }
 
@@ -213,9 +229,9 @@ function showMood(id) {
       <div class="mc-visual">${media(item)}</div>
       <p class="kicker" style="margin:0;justify-self:start">Rekomendasi buatmu</p>
       <h3>${item.name}</h3>
-      <div class="mc-row"><span class="mc-chip">${lv.flames} ${lv.name}</span><span class="mc-chip y">🧊 ${mb.name} (${mb.real})</span></div>
+      <div class="mc-row"><span class="mc-chip">${lv.flames} ${lv.name}</span><span class="mc-chip y">🧊 + ${mb.name} (${mb.real})</span></div>
       <p>${m.why}</p>
-      <button class="btn btn-primary btn-block" data-quick="${id}">Tambah ke Keranjang · ${rp(item.price)}</button>
+      <button class="btn btn-primary btn-block" data-quick="${id}">Tambah Paket Mood Ini · ${rp(item.price + CONFIG.mamboPrice)}</button>
     </div>`;
 }
 
@@ -250,7 +266,7 @@ function renderStamps() {
 let draft = null;
 function openProduct(id, preset = {}) {
   const m = byId(MENU, id);
-  draft = { menu: id, qty: 1, level: 1, mambo: MAMBO[0].id, note: "", ...preset };
+  draft = { menu: id, qty: 1, level: 1, note: "", mambos: Object.fromEntries(MAMBO.map((x) => [x.id, 0])), ...preset };
   $("#productBody").innerHTML = `
     <div class="ps-media">${media(m)}</div>
     <h3 class="ps-title" id="psTitle">${m.name}</h3>
@@ -262,9 +278,13 @@ function openProduct(id, preset = {}) {
       <div class="spice-read"><span id="psLevelName"></span><span class="flames" id="psFlames"></span></div>
     </div>
 
-    <span class="field-label">Es Mambo-nya <small>(sudah termasuk)</small></span>
-    <div class="chips" id="psMambo">${MAMBO.map((x) => `
-      <button class="chip" data-mambo="${x.id}" aria-pressed="${x.id === draft.mambo}"><span class="sw" style="background:${x.color}"></span>${x.name} <small style="font-weight:600;opacity:.7">${x.real}</small></button>`).join("")}
+    <span class="field-label">Tambah Es Mambo? <small>(${rp(CONFIG.mamboPrice)}/pcs · 2 pcs ${rp(CONFIG.mamboPairPrice)})</small></span>
+    <div class="mambo-add" id="psMambo">${MAMBO.map((x) => `
+      <div class="ma-row" data-row="${x.id}">
+        <span class="sw" style="background:${x.color}"></span>
+        <span class="ma-name"><b>${x.name}</b> <small>${x.real}</small></span>
+        <div class="qty sm"><button data-mq="${x.id}" data-d="-1" aria-label="Kurangi ${x.name}">−</button><span id="mq-${x.id}">0</span><button data-mq="${x.id}" data-d="1" aria-label="Tambah ${x.name}">+</button></div>
+      </div>`).join("")}
     </div>
 
     <label class="field-label" for="psNote">Catatan <small>(opsional)</small></label>
@@ -281,19 +301,26 @@ function openProduct(id, preset = {}) {
     $("#psLevelName").textContent = `${lv.name} · ${lv.note}`;
     $("#psFlames").textContent = lv.flames;
     $("#psQty").textContent = draft.qty;
-    $("#psAdd").textContent = `Tambah · ${rp(m.price * draft.qty)}`;
+    MAMBO.forEach((x) => {
+      $(`#mq-${x.id}`).textContent = draft.mambos[x.id];
+      $(`[data-row="${x.id}"]`).classList.toggle("on", draft.mambos[x.id] > 0);
+    });
+    const nm = Object.values(draft.mambos).reduce((a, b) => a + b, 0);
+    $("#psAdd").textContent = `Tambah · ${rp(m.price * draft.qty + mamboTotal(nm))}`;
   };
   sync();
   $("#psLevel").addEventListener("input", (e) => { draft.level = +e.target.value; sync(); });
   $("#psMambo").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-mambo]"); if (!b) return;
-    draft.mambo = b.dataset.mambo;
-    $$("#psMambo .chip").forEach((c) => c.setAttribute("aria-pressed", String(c === b)));
+    const b = e.target.closest("[data-mq]"); if (!b) return;
+    draft.mambos[b.dataset.mq] = Math.max(0, Math.min(20, draft.mambos[b.dataset.mq] + +b.dataset.d));
+    sync();
   });
   $$("#productBody [data-q]").forEach((b) => b.addEventListener("click", () => { draft.qty = Math.max(1, Math.min(50, draft.qty + +b.dataset.q)); sync(); }));
   $("#psAdd").addEventListener("click", () => {
-    draft.note = $("#psNote").value;
-    addToCart(draft);
+    addToCart({ menu: id, qty: draft.qty, level: draft.level, note: $("#psNote").value }, true);
+    const nm = Object.entries(draft.mambos).filter(([, q]) => q > 0);
+    nm.forEach(([mb, q]) => addToCart({ menu: "mambo", mambo: mb, qty: q }, true));
+    toast(`${m.name}${nm.length ? " + Es Mambo" : ""} masuk keranjang 🛒`);
     closeAll();
   });
   openLayer("#productSheet");
@@ -308,8 +335,24 @@ function renderCartBadge() {
   $("#fab").classList.toggle("show", c > 0);
 }
 function lineDesc(l) {
-  const lv = LEVELS[l.level], mb = byId(MAMBO, l.mambo);
-  return `${lv.flames} ${lv.name} · 🧊 ${mb.name}${l.note ? ` · "${esc(l.note)}"` : ""}`;
+  if (isMambo(l)) return `🧊 ${byId(MAMBO, l.mambo).real} · ${rp(CONFIG.mamboPrice)}/pcs`;
+  const lv = LEVELS[l.level];
+  return `${lv.flames} ${lv.name}${l.note ? ` · "${esc(l.note)}"` : ""}`;
+}
+function cartUpsell() {
+  const n = mamboQty();
+  if (n === 0) return `<div class="upsell"><span>🧊 Pedes? Tambah Es Mambo, 2 pcs cuma ${rp(CONFIG.mamboPairPrice)}</span>
+    <div class="upsell-btns">${MAMBO.map((x) => `<button data-add-mambo="${x.id}">+ ${x.name}</button>`).join("")}</div></div>`;
+  if (n % 2 === 1) return `<div class="upsell"><span>💡 Tambah 1 Es Mambo lagi cuma +${rp(CONFIG.mamboPairPrice - CONFIG.mamboPrice)} (jadi 2 pcs ${rp(CONFIG.mamboPairPrice)})</span>
+    <div class="upsell-btns">${MAMBO.map((x) => `<button data-add-mambo="${x.id}">+ ${x.name}</button>`).join("")}</div></div>`;
+  if (!cart.some((l) => l.menu === "paket")) return `<div class="upsell"><span>🔥 Laper berat? Paket Cepat Lulus cuma ${rp(byId(MENU, "paket").price)}</span><button data-open="paket">+ Tambah</button></div>`;
+  return "";
+}
+function priceRows(d) {
+  const s = mamboSaving();
+  return `${s ? `<div class="sum-row disc"><span>🧊 Promo 2 Es Mambo ${rp(CONFIG.mamboPairPrice)}</span><span>−${rp(s)}</span></div>` : ""}
+    ${d ? `<div class="sum-row disc"><span>🎉 Diskon pembeli pertama</span><span>−${rp(d)}</span></div>` : ""}
+    ${rewardReady() ? `<div class="sum-row disc"><span>🎁 Reward stamp</span><span>+1 Es Mambo gratis</span></div>` : ""}`;
 }
 function renderCart() {
   const body = $("#cartBody"), foot = $("#cartFoot");
@@ -318,21 +361,16 @@ function renderCart() {
     foot.innerHTML = "";
     return;
   }
-  body.innerHTML = cart.map((l, i) => {
-    const m = byId(MENU, l.menu);
-    return `<div class="line-item">
-      <div class="li-thumb">${media(m)}</div>
-      <div><b>${m.name}</b><small>${lineDesc(l)}</small></div>
-      <div class="li-right"><span class="li-price">${rp(m.price * l.qty)}</span>
+  body.innerHTML = cart.map((l, i) => `<div class="line-item">
+      <div class="li-thumb">${itemMedia(l)}</div>
+      <div><b>${itemName(l)}</b><small>${lineDesc(l)}</small></div>
+      <div class="li-right"><span class="li-price">${rp(unitPrice(l) * l.qty)}</span>
         <div class="qty sm"><button data-li="${i}" data-d="-1" aria-label="Kurangi">−</button><span>${l.qty}</span><button data-li="${i}" data-d="1" aria-label="Tambah">+</button></div>
-      </div></div>`;
-  }).join("") + (cart.some((l) => l.menu === "paket") ? "" : `
-    <div class="upsell"><span>🔥 Laper berat? Paket Cepat Lulus cuma ${rp(byId(MENU, "paket").price)}</span><button data-open="paket">+ Tambah</button></div>`);
+      </div></div>`).join("") + cartUpsell();
   const d = discount();
   foot.innerHTML = `
-    <div class="sum-row"><span>Subtotal (${count()} porsi)</span><span>${rp(subtotal())}</span></div>
-    ${d ? `<div class="sum-row disc"><span>🎉 Diskon pembeli pertama</span><span>−${rp(d)}</span></div>` : ""}
-    ${rewardReady() ? `<div class="sum-row disc"><span>🎁 Reward stamp</span><span>+1 Es Mambo</span></div>` : ""}
+    <div class="sum-row"><span>Subtotal (${count()} item)</span><span>${rp(gross())}</span></div>
+    ${priceRows(d)}
     <div class="sum-row total"><span>Total</span><b>${rp(subtotal() - d)}</b></div>
     <button class="btn btn-primary btn-lg btn-block" id="goCheckout">Lanjut Checkout →</button>`;
 }
@@ -410,7 +448,9 @@ function renderCheckout() {
       ${co.pay === "qris" ? `<div class="qris-box"><b>Total bayar: ${rp(subtotal() - discount())}</b>
         <img src="${CONFIG.qrisImage}" alt="Kode QRIS Dapur Ka Tanya" onerror="this.remove();document.getElementById('qrisAlt').hidden=false" />
         <p id="qrisAlt" hidden style="margin:8px 0 0;color:var(--muted)">Kode QRIS akan dikirim admin lewat WhatsApp setelah pesanan masuk.</p>
-        <p style="margin:8px 0 0;font-size:.85rem;color:var(--muted)">Simpan bukti bayar, lalu lampirkan di chat WhatsApp.</p></div>` : ""}
+        <p style="margin:8px 0 0;font-size:.85rem">a.n. <b>${CONFIG.qrisMerchant}</b> · NMID ${CONFIG.qrisNmid}</p>
+        <a class="btn btn-ghost" style="margin-top:10px;padding:8px 16px;font-size:.85rem" href="${CONFIG.qrisImage}" download="QRIS-DapurKaTanya.png">⬇ Simpan QRIS</a>
+        <p style="margin:10px 0 0;font-size:.85rem;color:var(--muted)">Pesan dari HP? Simpan QRIS, buka e-wallet/m-banking, pilih scan dari galeri, dan masukkan nominal di atas. Lampirkan bukti bayar di chat WhatsApp.</p></div>` : ""}
       ${nav()}</div>`;
   }
 
@@ -418,10 +458,9 @@ function renderCheckout() {
     const d = discount();
     b.innerHTML = `<div class="co-pane">
       <div class="review">
-        ${cart.map((l) => { const m = byId(MENU, l.menu); return `<div class="review-row"><span>${l.qty}× ${m.name}<br/><small>${lineDesc(l)}</small></span><span>${rp(m.price * l.qty)}</span></div>`; }).join("")}
+        ${cart.map((l) => `<div class="review-row"><span>${l.qty}× ${itemName(l)}<br/><small>${lineDesc(l)}</small></span><span>${rp(unitPrice(l) * l.qty)}</span></div>`).join("")}
         <hr/>
-        ${d ? `<div class="review-row"><span>Diskon pembeli pertama</span><span style="color:#15803d">−${rp(d)}</span></div>` : ""}
-        ${rewardReady() ? `<div class="review-row"><span>Reward stamp</span><span style="color:#15803d">+1 Es Mambo gratis</span></div>` : ""}
+        ${priceRows(d)}
         <div class="review-row" style="font-size:1.1rem"><span><b style="color:var(--ink)">Total</b></span><span style="color:var(--red)">${rp(subtotal() - d)}</span></div>
         <hr/>
         <div class="review-row"><span>Nama</span><span>${esc(co.name)}</span></div>
@@ -478,8 +517,10 @@ function coNext() {
 
 function buildMessage(o) {
   const lines = o.items.map((l, i) => {
-    const m = byId(MENU, l.menu), lv = LEVELS[l.level], mb = byId(MAMBO, l.mambo);
-    return `${i + 1}. ${m.name} x${l.qty} = ${rp(m.price * l.qty)}\n   Level: ${lv.name} ${lv.flames} | Es Mambo: ${mb.name} (${mb.real})${l.note ? `\n   Catatan: ${l.note}` : ""}`;
+    const head = `${i + 1}. ${itemName(l)} x${l.qty} = ${rp(unitPrice(l) * l.qty)}`;
+    if (isMambo(l)) return `${head}\n   (${byId(MAMBO, l.mambo).real})`;
+    const lv = LEVELS[l.level];
+    return `${head}\n   Level: ${lv.name} ${lv.flames}${l.note ? `\n   Catatan: ${l.note}` : ""}`;
   });
   return [
     `Halo Dapur Ka Tanya! 👋 Aku mau pesan ya ka.`,
@@ -493,6 +534,7 @@ function buildMessage(o) {
     ...lines,
     ``,
     `Subtotal: ${rp(o.subtotal)}`,
+    o.mamboSaving ? `Promo 2 Es Mambo ${rp(CONFIG.mamboPairPrice)}: -${rp(o.mamboSaving)}` : null,
     o.discount ? `Diskon pembeli pertama: -${rp(o.discount)}` : null,
     o.reward ? `Reward stamp: +1 Es Mambo gratis 🎁` : null,
     `*Total: ${rp(o.total)}*`,
@@ -511,7 +553,7 @@ function submitOrder() {
     code, at: Date.now(),
     name: co.name, wa: co.wa, kelas: co.kelas,
     items: cart.map((l) => ({ ...l })),
-    subtotal: subtotal(), discount: d, total: subtotal() - d,
+    subtotal: gross(), mamboSaving: mamboSaving(), discount: d, total: subtotal() - d,
     reward: rewardReady(),
     pickup: pickupLabel(), pay: co.pay,
   };
@@ -541,7 +583,7 @@ function renderOrders() {
     <div class="order-card">
       <header><b>${o.code}</b><span class="status">Terkirim</span></header>
       <small>${new Date(o.at).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })}</small>
-      <div>${o.items.map((l) => `${l.qty}× ${byId(MENU, l.menu)?.name ?? l.menu}`).join(", ")}</div>
+      <div>${o.items.map((l) => `${l.qty}× ${itemName(l)}`).join(", ")}</div>
       <small>${esc(o.pickup)}</small>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
         <b style="color:var(--red)">${rp(o.total)}</b>
@@ -603,7 +645,18 @@ document.addEventListener("click", (e) => {
 
   const mood = t.closest("[data-mood]"); if (mood) return showMood(mood.dataset.mood);
   const quick = t.closest("[data-quick]");
-  if (quick) { const m = byId(MOODS, quick.dataset.quick); return addToCart({ ...m.pick }); }
+  if (quick) {
+    const m = byId(MOODS, quick.dataset.quick);
+    addToCart({ menu: m.pick.menu, level: m.pick.level }, true);
+    addToCart({ menu: "mambo", mambo: m.pick.mambo }, true);
+    return toast(`${byId(MENU, m.pick.menu).name} + Es Mambo ${byId(MAMBO, m.pick.mambo).name} masuk keranjang 🛒`);
+  }
+  const am = t.closest("[data-add-mambo]");
+  if (am) {
+    addToCart({ menu: "mambo", mambo: am.dataset.addMambo });
+    if ($("#cartDrawer").classList.contains("show")) renderCart();
+    return;
+  }
 
   const li = t.closest("[data-li]");
   if (li) {
@@ -666,7 +719,7 @@ let chatBusy = false;
 
 // Markdown mini: **tebal**, daftar "- ", baris baru. Teks di-escape dulu supaya aman.
 function chatHtml(text) {
-  const orderIds = [...new Set([...text.matchAll(/\[\[ORDER:([a-z]+)\]\]/g)].map((m) => m[1]))].filter((id) => byId(MENU, id)).slice(0, 2);
+  const orderIds = [...new Set([...text.matchAll(/\[\[ORDER:([a-z]+)\]\]/g)].map((m) => m[1]))].filter((id) => byId(MENU, id) || byId(MAMBO, id)).slice(0, 3);
   const clean = esc(text.replace(/\[\[ORDER:[a-z]+\]\]/g, "").trim()).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\*(\S[^*]*?)\*/g, "<i>$1</i>");
   let html = "", inList = false;
   for (const line of clean.split("\n")) {
@@ -677,7 +730,9 @@ function chatHtml(text) {
   }
   if (inList) html += "</ul>";
   html = html.replace(/(<br>)+$/, "");
-  if (orderIds.length) html += `<div class="msg-actions">${orderIds.map((id) => `<button data-chat-order="${id}">Pesan ${byId(MENU, id).name} · ${rp(byId(MENU, id).price)}</button>`).join("")}</div>`;
+  if (orderIds.length) html += `<div class="msg-actions">${orderIds.map((id) => byId(MENU, id)
+    ? `<button data-chat-order="${id}">Pesan ${byId(MENU, id).name} · ${rp(byId(MENU, id).price)}</button>`
+    : `<button data-add-mambo="${id}">+ Es Mambo ${byId(MAMBO, id).name} · ${rp(CONFIG.mamboPrice)}</button>`).join("")}</div>`;
   return html;
 }
 function chatBubble(role, text, extra = "") {
