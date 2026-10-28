@@ -4,7 +4,7 @@
 const CONFIG = {
   // Nomor WhatsApp admin, format internasional tanpa "+" (contoh: 6281234567890).
   // Kosongkan "" kalau belum ada: WhatsApp akan minta pembeli memilih kontak.
-  waNumber: "",
+  waNumber: "6282373405607",
   instagram: "dapurkatanya",
   tiktok: "dapurkatanya",
   location: "Telkom University Jakarta",
