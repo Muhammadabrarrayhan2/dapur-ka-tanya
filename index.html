@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Dapur Ka Tanya | Cireng & Dimsum Kuah Keju</title>
+  <meta name="description" content="Trendi Comfort Street Food di Telkom University Jakarta. Cireng & dimsum kuah keju, chili oil level bebas, plus Es Mambo. Pre-order langsung dari sini." />
+  <meta name="theme-color" content="#C01B2C" />
+  <meta property="og:title" content="Dapur Ka Tanya | Kuah Keju Meleleh, Chili Oil Nendang" />
+  <meta property="og:description" content="Pre-order cireng & dimsum kuah keju + Es Mambo. Mulai Rp12.000." />
+  <meta property="og:image" content="/assets/logo.png" />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/png" href="/assets/favicon.png" />
+  <link rel="apple-touch-icon" href="/assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- LOADER -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <img src="/assets/logo.png" alt="" class="loader-logo" />
+    <div class="loader-bar"><span></span></div>
+    <p class="loader-text">Lagi manasin kuah keju<span class="dots"><i></i><i></i><i></i></span></p>
+  </div>
+
+  <!-- NAV -->
+  <header class="nav" id="nav">
+    <div class="container nav-inner">
+      <a href="#top" class="brand" aria-label="Dapur Ka Tanya, ke atas">
+        <img src="/assets/logo.png" alt="Dapur Ka Tanya" />
+      </a>
+      <nav class="nav-links" aria-label="Navigasi utama">
+        <a href="#menu">Menu</a>
+        <a href="#mood">Mood Matcher</a>
+        <a href="#mambo">Es Mambo</a>
+        <a href="#cara">Cara Order</a>
+        <a href="#tentang">Tentang</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="icon-btn" id="openOrders" aria-label="Pesanan saya" title="Pesanan saya">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+        </button>
+        <button class="cart-btn" id="openCart" aria-label="Buka keranjang">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+          <span class="cart-label">Keranjang</span>
+          <span class="badge" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-bg" aria-hidden="true">
+        <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+      </div>
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow reveal"><span class="pulse"></span> Buka tiap Market Day Sabtu · Telkom University Jakarta</p>
+          <h1 class="hero-title reveal">
+            <span class="line">Laper?</span>
+            <span class="line">Ka, <em class="hl-red">Tanya</em></span>
+            <span class="line">Dulu Sini!</span>
+          </h1>
+          <p class="hero-sub reveal">Cireng &amp; dimsum <strong>kuah keju meleleh</strong>, <strong>chili oil</strong> level bebas, plus <strong>Es Mambo</strong> dingin buat nyelametin lidahmu. Jajan pelepas stres di sela kelas, harga tetap ramah kantong.</p>
+          <div class="hero-cta reveal">
+            <a href="#menu" class="btn btn-primary btn-lg">Pesan Sekarang
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <a href="#mood" class="btn btn-ghost btn-lg">Bingung? Cek Mood-mu</a>
+          </div>
+          <ul class="hero-stats reveal">
+            <li><b>Rp12rb</b><span>mulai dari</span></li>
+            <li><b>4 level</b><span>chili oil</span></li>
+            <li><b>Free</b><span>Es Mambo / porsi</span></li>
+          </ul>
+        </div>
+        <div class="hero-art reveal">
+          <div class="hero-ring" aria-hidden="true">
+            <svg viewBox="0 0 200 200"><defs><path id="circ" d="M100,100 m-82,0 a82,82 0 1,1 164,0 a82,82 0 1,1 -164,0"/></defs>
+              <text><textPath href="#circ">PEDAS · GURIH · CREAMY · DINGIN · PEDAS · GURIH · CREAMY · DINGIN ·</textPath></text></svg>
+          </div>
+          <img src="/assets/logo.png" alt="Logo Dapur Ka Tanya" class="hero-logo" />
+          <span class="sticker s1" data-depth="0.6">🌶️</span>
+          <span class="sticker s2" data-depth="1">🧀</span>
+          <span class="sticker s3" data-depth="0.8">🥟</span>
+          <span class="sticker s4" data-depth="0.4">🧊</span>
+          <div class="hero-card" data-depth="0.3">
+            <span class="hc-emoji">🔥</span>
+            <div><b>Paket Cepat Lulus</b><small>2 dimsum + 3 cireng · Rp17rb</small></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MARQUEE -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>CIRENG KUAH KEJU</span><i>✦</i><span>DIMSUM KUAH KEJU</span><i>✦</i><span>PAKET CEPAT LULUS</span><i>✦</i><span>ESCOPUS</span><i>✦</i><span>ESJOSJIS</span><i>✦</i><span>ESKOM</span><i>✦</i>
+        <span>CIRENG KUAH KEJU</span><i>✦</i><span>DIMSUM KUAH KEJU</span><i>✦</i><span>PAKET CEPAT LULUS</span><i>✦</i><span>ESCOPUS</span><i>✦</i><span>ESJOSJIS</span><i>✦</i><span>ESKOM</span><i>✦</i>
+      </div>
+    </div>
+
+    <!-- WHY -->
+    <section class="section why">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="kicker">Kenapa Dapur Ka Tanya?</p>
+          <h2>Bukan sekadar ganjel perut,<br/>ini <span class="hl-yellow">food experience</span>.</h2>
+        </div>
+        <div class="bento">
+          <article class="tile tile-big reveal">
+            <span class="tile-emoji">🧀🌶️</span>
+            <h3>Playful Taste</h3>
+            <p>Renyah-kenyal jajanan lokal ketemu kuah keju gurih dan chili oil autentik. Pedas, gurih, creamy dalam satu suapan.</p>
+          </article>
+          <article class="tile tile-red reveal">
+            <span class="tile-emoji">🧊</span>
+            <h3>Pairing Penawar Pedas</h3>
+            <p>Tiap porsi sudah termasuk Es Mambo. Pedasnya naik, dinginnya nyelametin.</p>
+          </article>
+          <article class="tile tile-yellow reveal">
+            <span class="tile-emoji">🏃</span>
+            <h3>Dekat Kelas, Pagi–Siang</h3>
+            <p>Gak perlu jalan jauh ke Pasar Rumput di jeda kuliah yang mepet.</p>
+          </article>
+          <article class="tile reveal">
+            <span class="tile-emoji">📦</span>
+            <h3>Kemasan Higienis</h3>
+            <p>Bowl food grade, bersih, praktis dibawa ke kelas.</p>
+          </article>
+          <article class="tile tile-dark reveal">
+            <span class="tile-emoji">📲</span>
+            <h3>QRIS &amp; Pre-Order</h3>
+            <p>Pesan dari web ini, bayar QRIS atau tunai, tinggal ambil.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- MENU -->
+    <section class="section menu" id="menu">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="kicker">Menu Andalan</p>
+          <h2>Pilih bowl favoritmu hari ini</h2>
+          <p class="section-sub">Semua harga <b>sudah termasuk 1 Es Mambo</b>. Level chili oil bebas pilih, gratis.</p>
+        </div>
+        <div class="menu-grid" id="menuGrid"></div>
+      </div>
+    </section>
+
+    <!-- MOOD MATCHER -->
+    <section class="section mood" id="mood">
+      <div class="container mood-grid">
+        <div class="reveal">
+          <p class="kicker kicker-light">Mood Matcher</p>
+          <h2 class="light">Lagi mood apa hari ini?</h2>
+          <p class="section-sub light">Pilih kondisimu, biar kami racikin kombinasi bowl, level pedas, dan Es Mambo yang pas. Dopamine race dimulai.</p>
+          <div class="mood-options" id="moodOptions" role="radiogroup" aria-label="Pilih mood"></div>
+        </div>
+        <div class="mood-result reveal" id="moodResult" aria-live="polite">
+          <div class="mood-empty">
+            <span>👈</span>
+            <p>Pilih mood dulu, nanti rekomendasinya muncul di sini.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ES MAMBO -->
+    <section class="section mambo" id="mambo">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="kicker">Es Mambo Squad</p>
+          <h2>Namanya lucu, dinginnya serius.</h2>
+          <p class="section-sub">Dibuat sehari sebelumnya biar beku sempurna. Pilih satu tiap kamu pesan bowl.</p>
+        </div>
+        <div class="mambo-grid" id="mamboGrid"></div>
+      </div>
+    </section>
+
+    <!-- CARA ORDER -->
+    <section class="section how" id="cara">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="kicker">Ordering System</p>
+          <h2>Pesan dengan mudah, ambil tanpa antre.</h2>
+        </div>
+        <ol class="steps">
+          <li class="step reveal"><span class="step-n">1</span><h3>Pilih Menu</h3><p>Atur jumlah, level chili oil, dan varian Es Mambo.</p></li>
+          <li class="step reveal"><span class="step-n">2</span><h3>Isi Data</h3><p>Nama, nomor WhatsApp, dan kelas/jurusan.</p></li>
+          <li class="step reveal"><span class="step-n">3</span><h3>Pilih Jadwal</h3><p>Ambil saat Market Day Sabtu atau pre-order hari lain.</p></li>
+          <li class="step reveal"><span class="step-n">4</span><h3>Bayar &amp; Kirim</h3><p>QRIS atau tunai. Pesanan terkirim ke admin via WhatsApp.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- STAMP CARD -->
+    <section class="section stamps">
+      <div class="container stamp-wrap reveal">
+        <div class="stamp-copy">
+          <p class="kicker">Kartu Stamp Digital</p>
+          <h2>5x jajan, Es Mambo ke-6 gratis!</h2>
+          <p class="section-sub">Stamp otomatis bertambah tiap pesanan yang kamu kirim dari web ini (tersimpan di perangkatmu). Tunjukkan kartu ini ke kasir saat stamp penuh.</p>
+          <p class="stamp-note" id="stampNote"></p>
+        </div>
+        <div class="stamp-card" id="stampCard" aria-label="Kartu stamp">
+          <div class="stamp-card-head">
+            <img src="/assets/logo.png" alt="" />
+            <span>LOYALTY CARD</span>
+          </div>
+          <div class="stamp-slots" id="stampSlots"></div>
+          <p class="stamp-foot">Pembeli pertama otomatis dapat potongan <b id="firstDiscLabel">Rp2.000</b></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TENTANG / VISI MISI -->
+    <section class="section about" id="tentang">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="kicker">Tentang Kami</p>
+          <h2>Dari mahasiswa, buat mahasiswa.</h2>
+          <p class="section-sub">Dapur Ka Tanya adalah usaha kuliner rintisan Kelompok 2 kelas SI-23-01 sejak 2026. Semua menu dimasak sendiri oleh tim, lalu dijual langsung di Telkom University Jakarta saat Market Day dan lewat pre-order.</p>
+        </div>
+        <div class="vm-grid">
+          <article class="vm reveal">
+            <span class="vm-ico">🌟</span>
+            <h3>Visi Kami</h3>
+            <p>Menjadi jajanan comfort street food favorit mahasiswa, yang selalu dekat, terjangkau, dan bikin mood naik di sela padatnya kuliah.</p>
+          </article>
+          <article class="vm reveal">
+            <span class="vm-ico">🚀</span>
+            <h3>Misi Kami</h3>
+            <ul>
+              <li>Menyajikan perpaduan pedas-gurih-creamy dengan rasa yang konsisten lewat SOP produksi.</li>
+              <li>Hadir di jam pagi sampai siang saat mahasiswa paling butuh camilan.</li>
+              <li>Menjaga harga ramah kantong dengan bahan lokal yang efisien.</li>
+              <li>Terus berinovasi varian berdasarkan masukan pelanggan.</li>
+            </ul>
+          </article>
+        </div>
+
+        <h3 class="team-title reveal">Tim di Balik Dapur</h3>
+        <div class="team" id="teamGrid"></div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section faq">
+      <div class="container faq-wrap">
+        <div class="section-head reveal">
+          <p class="kicker">FAQ</p>
+          <h2>Ka, mau tanya…</h2>
+        </div>
+        <div class="faq-list" id="faqList"></div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-band">
+      <div class="container cta-inner reveal">
+        <h2>Udah laper? Jangan cuma dibayangin.</h2>
+        <a href="#menu" class="btn btn-yellow btn-lg">Pesan Bowl-mu</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <img src="/assets/logo.png" alt="Dapur Ka Tanya" class="footer-logo" />
+        <p>Trendi Comfort Street Food.<br/>Home industry oleh Kelompok 2 · SI-23-01.</p>
+      </div>
+      <div>
+        <h4>Jualan di</h4>
+        <p>Telkom University Jakarta<br/>Market Day tiap Sabtu<br/>Pre-order via web &amp; WhatsApp</p>
+      </div>
+      <div>
+        <h4>Kontak</h4>
+        <ul class="socials">
+          <li><a id="lnkWa" href="#" target="_blank" rel="noopener">WhatsApp</a></li>
+          <li><a id="lnkIg" href="#" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a id="lnkTt" href="#" target="_blank" rel="noopener">TikTok</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="copyright">© <span id="year"></span> Dapur Ka Tanya. Dibuat dengan kuah keju &amp; cinta.</p>
+  </footer>
+
+  <!-- floating cart (mobile) -->
+  <button class="fab" id="fab" aria-label="Buka keranjang">
+    <span>🛒</span><b id="fabTotal">Rp0</b><em id="fabCount">0 item</em>
+  </button>
+
+  <!-- OVERLAY + SHEETS -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- product customizer -->
+  <div class="sheet" id="productSheet" role="dialog" aria-modal="true" aria-labelledby="psTitle">
+    <button class="sheet-close" data-close aria-label="Tutup">✕</button>
+    <div id="productBody"></div>
+  </div>
+
+  <!-- cart drawer -->
+  <aside class="drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+    <div class="drawer-head">
+      <h3 id="cartTitle">Keranjang 🛒</h3>
+      <button class="sheet-close static" data-close aria-label="Tutup">✕</button>
+    </div>
+    <div class="drawer-body" id="cartBody"></div>
+    <div class="drawer-foot" id="cartFoot"></div>
+  </aside>
+
+  <!-- orders drawer -->
+  <aside class="drawer" id="ordersDrawer" role="dialog" aria-modal="true" aria-labelledby="ordersTitle">
+    <div class="drawer-head">
+      <h3 id="ordersTitle">Pesanan Saya 🧾</h3>
+      <button class="sheet-close static" data-close aria-label="Tutup">✕</button>
+    </div>
+    <div class="drawer-body" id="ordersBody"></div>
+  </aside>
+
+  <!-- checkout -->
+  <div class="modal" id="checkout" role="dialog" aria-modal="true" aria-labelledby="coTitle">
+    <button class="sheet-close" data-close aria-label="Tutup">✕</button>
+    <h3 id="coTitle" class="co-title">Checkout</h3>
+    <ol class="co-steps" id="coSteps">
+      <li data-i="0">Identitas</li><li data-i="1">Jadwal</li><li data-i="2">Bayar</li><li data-i="3">Review</li>
+    </ol>
+    <div id="coBody"></div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <canvas id="confetti" aria-hidden="true"></canvas>
+
+  <script src="/app.js"></script>
+</body>
+</html>
