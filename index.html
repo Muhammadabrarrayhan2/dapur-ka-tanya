@@ -335,6 +335,27 @@
     <div id="coBody"></div>
   </div>
 
+  <!-- chat agent -->
+  <button class="chat-fab" id="chatFab" aria-label="Tanya Ka Tanya" aria-expanded="false" aria-controls="chatPanel">
+    <img src="/assets/favicon.png" alt="" />
+    <span class="chat-fab-label">Tanya Ka!</span>
+  </button>
+  <section class="chat" id="chatPanel" role="dialog" aria-label="Chat dengan Ka Tanya" hidden>
+    <header class="chat-head">
+      <img src="/assets/favicon.png" alt="" />
+      <div><b>Ka Tanya</b><small><span class="pulse"></span> Asisten menu · balas instan</small></div>
+      <button class="chat-icon" id="chatReset" aria-label="Mulai ulang percakapan" title="Mulai ulang">↺</button>
+      <button class="chat-icon" id="chatClose" aria-label="Tutup chat">✕</button>
+    </header>
+    <div class="chat-log" id="chatLog" aria-live="polite"></div>
+    <div class="chat-chips" id="chatChips"></div>
+    <form class="chat-form" id="chatForm" autocomplete="off">
+      <input id="chatInput" maxlength="500" placeholder="Tanya menu, harga, jadwal…" aria-label="Pesan" />
+      <button type="submit" aria-label="Kirim">➤</button>
+    </form>
+    <p class="chat-foot">Jawaban AI bisa keliru. Info pasti: admin WhatsApp.</p>
+  </section>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <canvas id="confetti" aria-hidden="true"></canvas>
 

@@ -656,6 +656,96 @@ if (art && matchMedia("(pointer:fine)").matches) {
   art.addEventListener("mouseleave", () => $$("[data-depth]", art).forEach((el) => (el.style.transform = "")));
 }
 
+/* ========================= chat agent ========================= */
+const CHAT_GREETING = "Halo ka! 👋 Aku **Ka Tanya**. Mau tanya menu, harga, level pedas, jadwal Market Day, atau cara pesan? Tanya aja!";
+const CHAT_CHIPS = ["Menu & harga?", "Kapan & di mana jualan?", "Gak kuat pedes, rekomendasi?", "Bayar pakai apa?", "Promo apa aja?"];
+const ssGet = (k, d) => { try { return JSON.parse(sessionStorage.getItem(k)) ?? d; } catch { return d; } };
+const ssSet = (k, v) => { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch {} };
+let chatHistory = ssGet("dkt_chat", []);
+let chatBusy = false;
+
+// Markdown mini: **tebal**, daftar "- ", baris baru. Teks di-escape dulu supaya aman.
+function chatHtml(text) {
+  const orderIds = [...new Set([...text.matchAll(/\[\[ORDER:([a-z]+)\]\]/g)].map((m) => m[1]))].filter((id) => byId(MENU, id)).slice(0, 2);
+  const clean = esc(text.replace(/\[\[ORDER:[a-z]+\]\]/g, "").trim()).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\*(\S[^*]*?)\*/g, "<i>$1</i>");
+  let html = "", inList = false;
+  for (const line of clean.split("\n")) {
+    const li = line.match(/^\s*[-•]\s+(.*)/);
+    if (li) { if (!inList) { html += "<ul>"; inList = true; } html += `<li>${li[1]}</li>`; continue; }
+    if (inList) { html += "</ul>"; inList = false; }
+    html += line.trim() ? line + "<br>" : "";
+  }
+  if (inList) html += "</ul>";
+  html = html.replace(/(<br>)+$/, "");
+  if (orderIds.length) html += `<div class="msg-actions">${orderIds.map((id) => `<button data-chat-order="${id}">Pesan ${byId(MENU, id).name} · ${rp(byId(MENU, id).price)}</button>`).join("")}</div>`;
+  return html;
+}
+function chatBubble(role, text, extra = "") {
+  const el = document.createElement("div");
+  el.className = `msg ${role === "user" ? "user" : "bot"} ${extra}`;
+  if (role === "user") el.textContent = text; else el.innerHTML = chatHtml(text);
+  $("#chatLog").appendChild(el);
+  $("#chatLog").scrollTop = $("#chatLog").scrollHeight;
+  return el;
+}
+function renderChat() {
+  $("#chatLog").innerHTML = "";
+  chatBubble("assistant", CHAT_GREETING);
+  chatHistory.forEach((m) => chatBubble(m.role, m.content));
+  $("#chatChips").innerHTML = CHAT_CHIPS.map((c) => `<button type="button" data-chip="${esc(c)}">${esc(c)}</button>`).join("");
+  $("#chatChips").hidden = chatHistory.length > 0;
+}
+async function sendChat(text) {
+  text = text.trim();
+  if (!text || chatBusy) return;
+  chatBusy = true;
+  $("#chatForm button").disabled = true;
+  $("#chatChips").hidden = true;
+  chatHistory.push({ role: "user", content: text });
+  chatBubble("user", text);
+  const typing = document.createElement("div");
+  typing.className = "msg bot typing";
+  typing.innerHTML = "<i></i><i></i><i></i>";
+  $("#chatLog").appendChild(typing);
+  $("#chatLog").scrollTop = $("#chatLog").scrollHeight;
+  try {
+    const r = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: chatHistory.slice(-10) }) });
+    const data = await r.json().catch(() => ({}));
+    typing.remove();
+    if (!r.ok || !data.reply) throw new Error(data.error || "Ka Tanya lagi gangguan, coba lagi ya 🙏");
+    chatHistory.push({ role: "assistant", content: data.reply });
+    chatBubble("assistant", data.reply);
+  } catch (e) {
+    typing.remove();
+    chatHistory.pop(); // pesan gagal tidak disimpan supaya bisa dikirim ulang
+    const msg = e instanceof TypeError ? "Koneksi terputus. Cek internet lalu coba lagi ya 🙏" : e.message;
+    chatBubble("assistant", msg, "err");
+    $("#chatInput").value = text;
+  } finally {
+    ssSet("dkt_chat", chatHistory.slice(-20));
+    chatBusy = false;
+    $("#chatForm button").disabled = false;
+    $("#chatInput").focus();
+  }
+}
+function toggleChat(open) {
+  $("#chatPanel").hidden = !open;
+  $("#chatFab").setAttribute("aria-expanded", String(open));
+  if (open) { $("#chatLog").scrollTop = $("#chatLog").scrollHeight; setTimeout(() => $("#chatInput").focus(), 50); }
+  else $("#chatFab").focus();
+}
+$("#chatFab").addEventListener("click", () => toggleChat(true));
+$("#chatClose").addEventListener("click", () => toggleChat(false));
+$("#chatReset").addEventListener("click", () => { chatHistory = []; ssSet("dkt_chat", []); renderChat(); });
+$("#chatForm").addEventListener("submit", (e) => { e.preventDefault(); const v = $("#chatInput").value; $("#chatInput").value = ""; sendChat(v); });
+$("#chatPanel").addEventListener("click", (e) => {
+  const chip = e.target.closest("[data-chip]"); if (chip) return sendChat(chip.dataset.chip);
+  const ord = e.target.closest("[data-chat-order]");
+  if (ord) { toggleChat(false); openProduct(ord.dataset.chatOrder); }
+});
+$("#chatPanel").addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); toggleChat(false); } });
+renderChat();
+
 /* ========================= init ========================= */
 renderMenu(); renderMambo(); renderMoods(); renderTeam(); renderFaq(); renderStamps(); renderCartBadge();
 $("#year").textContent = new Date().getFullYear();
